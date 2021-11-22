@@ -15,7 +15,7 @@
             sitename username tags)
     ;; Site
     (log:info "Ensuring website '~A' exists." sitename)
-    (restagraph-client:ensure-resource-exists server "Websites" sitename)
+    (restagraph-client:ensure-resource-exists server "/Websites" sitename)
     ;; Account
     (log:info "Ensuring user '~A' exists on site '~A'" username sitename)
     (restagraph-client:ensure-resource-exists
