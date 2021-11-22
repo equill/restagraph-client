@@ -1,19 +1,5 @@
 (in-package :restagraph-client)
 
-(defclass rg-server ()
-  ((protocol :initarg :protocol
-             :reader protocol
-             :initform "http"
-             :type string)
-   (hostname :initarg :hostname
-             :reader hostname
-             :initform "localhost"
-             :type string)
-   (port :initarg :port
-         :reader port
-         :initform 4950
-         :type integer)))
-
 (defun ingest-csv (filepath)
   "Parse data from a CSV file."
   (with-open-file (infile filepath)
@@ -62,7 +48,7 @@
   (let* ((target-elements (cl-ppcre:split "/" target))
          (target-type (car (last target-elements 2)))
          (target-uid (car (last target-elements)))
-         (check-url (format nil "~A://~A:~A/raw/v1/~A/~A/~A/~A"
+         (check-url (format nil "~A://~A:~A/raw/v1~A/~A/~A/~A"
                             (protocol server)
                             (hostname server)
                             (port server)

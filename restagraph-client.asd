@@ -14,5 +14,6 @@
                #:cl-ppcre
                #:log4cl)
   :components ((:file "package")
+               (:file "classes")
                (:file "librestagraph")
                (:file "clients")))

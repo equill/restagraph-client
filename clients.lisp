@@ -7,7 +7,7 @@
 
 (defun process-line (server line)
   "For a single line, make the necessary updates to Webcat."
-  (declare (type rg-server server))
+  (declare (type restagraph-client:rg-server server))
   (let ((sitename (first line))
         (username (second line))
         (tags (cl-ppcre:split ":" (third line))))
@@ -15,30 +15,33 @@
             sitename username tags)
     ;; Site
     (log:info "Ensuring website '~A' exists." sitename)
-    (ensure-resource-exists server "Websites" sitename)
+    (restagraph-client:ensure-resource-exists server "Websites" sitename)
     ;; Account
     (log:info "Ensuring user '~A' exists on site '~A'" username sitename)
-    (ensure-resource-exists server
-                            (format nil "/Websites/~A/ACCOUNTS/Accounts" sitename)
-                            username)
+    (restagraph-client:ensure-resource-exists
+      server
+      (format nil "/Websites/~A/ACCOUNTS/Accounts" sitename)
+      username)
     (log:info "Linking the account back to the site.")
-    (ensure-link-exists server
-                        (format nil "/Websites/~A/ACCOUNTS/Accounts/~A" sitename username)
-                        "BELONGS_TO"
-                        (format nil "/Websites/~A" sitename))
+    (restagraph-client:ensure-link-exists
+      server
+      (format nil "/Websites/~A/ACCOUNTS/Accounts/~A" sitename username)
+      "BELONGS_TO"
+      (format nil "/Websites/~A" sitename))
     ;; Tags
     (mapcar #'(lambda (tag)
                 (log:debug "Ensuring tag '~A' exists." tag)
-                (ensure-resource-exists server "Tags" tag)
+                (restagraph-client:ensure-resource-exists server "/Tags" tag)
                 (log:debug "Tagging user '~A' with '~A' username tag" username tag)
-                (ensure-link-exists server
-                                    (format nil "/Websites/~A/ACCOUNTS/Accounts/~A" sitename username)
-                                    "TAGS"
-                                    (format nil "/Tags/~A" tag)))
+                (restagraph-client:ensure-link-exists
+                  server
+                  (format nil "/Websites/~A/ACCOUNTS/Accounts/~A" sitename username)
+                  "TAGS"
+                  (format nil "/Tags/~A" tag)))
             tags)))
 
 (defparameter *webcat*
-  (make-instance 'rg-server :port 4965))
+  (make-instance 'restagraph-client:rg-server :port 4965))
 
 (defun create-and-tag-users (server filepath)
   "Create and tag all accounts in a CSV file.
@@ -48,4 +51,4 @@
   - tags (colon-separated list)
   Ensures presence of the site, username and tags, and connects accounts back to their site."
   (mapcar #'(lambda (line) (process-line server line))
-          (ingest-csv filepath)))
+          (restagraph-client:ingest-csv filepath)))
